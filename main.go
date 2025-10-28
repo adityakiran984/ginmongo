@@ -39,7 +39,7 @@ func getAlbums(c *gin.Context) {
 
 // Get album by ID
 func getAlbumByID(c *gin.Context) {
-	id := c.Param("id") // lowercase 'id' — Gin is case-sensitive
+	id := c.Param("id") 
 
 	for _, a := range albums {
 		if a.ID == id {
@@ -84,7 +84,6 @@ func updateAlbum(c *gin.Context) {
 			return
 		}
 	}
-
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
 
@@ -100,6 +99,5 @@ func deleteAlbum(c *gin.Context) {
 			return
 		}
 	}
-
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
