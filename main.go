@@ -3,7 +3,6 @@ package main
 import (
 	// "fmt"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -53,14 +52,13 @@ func getAlbumByID(c *gin.Context) {
 // Add new album
 func postAlbum(c *gin.Context) {
 	var newAlbum album
-
 	if err := c.BindJSON(&newAlbum); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusNotFound, gin.H{"Error message" : err.Error()})
 		return
 	}
-
 	albums = append(albums, newAlbum)
-	c.IndentedJSON(http.StatusCreated, newAlbum)
+	c.IndentedJSON(http.StatusOK, newAlbum)
+	// albums = append(albums, newAlbum)
 }
 
 // Update an existing album
@@ -93,11 +91,9 @@ func deleteAlbum(c *gin.Context) {
 
 	for i, a := range albums {
 		if a.ID == id {
-			// Remove from slice
 			albums = append(albums[:i], albums[i+1:]...)
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "album deleted"})
-			return
+			c.IndentedJSON(http.StatusOK, gin.H{"message" : "album deleted successfully"})
 		}
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message" : "album not present"})
 }
