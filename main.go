@@ -75,7 +75,7 @@ func updateAlbum(c *gin.Context) {
 
 	for i, a := range albums {
 		if a.ID == id {
-			// Update existing fields
+			// Updating fields
 			albums[i].Title = updated.Title
 			albums[i].Artist = updated.Artist
 			albums[i].Price = updated.Price
