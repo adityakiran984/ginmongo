@@ -2,7 +2,9 @@ package main
 
 import (
 	// "fmt"
+	// "example/learnginmongo/configs"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +40,7 @@ func getAlbums(c *gin.Context) {
 
 // Get album by ID
 func getAlbumByID(c *gin.Context) {
-	id := c.Param("id") 
+	id := c.Param("id")
 
 	for _, a := range albums {
 		if a.ID == id {
@@ -53,11 +55,11 @@ func getAlbumByID(c *gin.Context) {
 func postAlbum(c *gin.Context) {
 	var newAlbum album
 	if err := c.BindJSON(&newAlbum); err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"Error message" : err.Error()})
+		c.IndentedJSON(http.StatusNotFound, gin.H{"Error message": err.Error() + " couldn't add the album"})
 		return
 	}
 	albums = append(albums, newAlbum)
-	c.IndentedJSON(http.StatusOK, newAlbum)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "album added successfully"})
 	// albums = append(albums, newAlbum)
 }
 
@@ -92,8 +94,8 @@ func deleteAlbum(c *gin.Context) {
 	for i, a := range albums {
 		if a.ID == id {
 			albums = append(albums[:i], albums[i+1:]...)
-			c.IndentedJSON(http.StatusOK, gin.H{"message" : "album deleted successfully"})
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "album deleted successfully"})
 		}
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message" : "album not present"})
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not present"})
 }
