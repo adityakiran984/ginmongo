@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"time"
-
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	// "go.mongodb.org/mongo-driver/v2/x/mongo/driver/mongocrypt/options"
@@ -18,4 +17,9 @@ func ConnectMongoDB() *mongo.Client {
 		log.Fatal(err)
 	}
 	return client
+}
+
+func GetCollections(client *mongo.Client, collectionName string) *mongo.Collection {
+	collection := client.Database("").Collection(collectionName)
+	return collection
 }
