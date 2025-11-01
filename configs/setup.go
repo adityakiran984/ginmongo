@@ -2,10 +2,10 @@ package configs
 
 import (
 	"context"
-	"log"
-	"time"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"log"
+	"time"
 )
 
 func ConnectMongoDB() *mongo.Client {

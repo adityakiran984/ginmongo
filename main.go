@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main () {
+func main() {
 	router := gin.Default()
 
 	configs.ConnectMongoDB()
