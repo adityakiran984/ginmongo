@@ -1,9 +1,11 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"example/learnginmongo/controllers"
 
-// import "example/learnginmongo/configs"
+	"github.com/gin-gonic/gin"
+)
 
 func UserRoute(router *gin.Engine) {
-	
+	router.POST("/user", controllers.CreateUser())
 }
