@@ -2,7 +2,7 @@
 
 ## ToDo
 
-1. Create proper folder structure
-2. Add MongoDB integration
-3. Add test
-4. Complete dockerfile to run it as an image
+- [x] Create proper folder structure
+- [x] Add MongoDB integration
+- [ ] Add test
+- [ ] Complete dockerfile to run it as an image
