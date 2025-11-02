@@ -118,3 +118,63 @@ func GetUser() gin.HandlerFunc {
 			Data: map[string]interface{}{"data": user}})
 	}
 }
+
+func UpdateUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+		defer cancel()
+
+		id := c.Param("id")
+		var user models.User
+		objId, err := bson.ObjectIDFromHex(id)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "objectId for requested user is not valid",
+				Data: map[string]interface{}{"data" : err.Error()},
+			})
+
+			return
+		}
+		
+		if err := c.BindJSON(&user); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "failure",
+				Data: map[string]interface{}{"data" : err.Error()},
+			})
+
+			return
+		}
+
+		if validationErr := validate.Struct(&user); validationErr != nil {
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "error occured during validation of request",
+				Data: map[string]interface{}{"data" : validationErr.Error()},
+			})
+		}
+
+		update := bson.M{"name" : user.Name, "location" : user.Location, "title" : user.Title}
+		filter := bson.M{"_id" : objId}
+
+		updateUser, findErr := collection.UpdateOne(ctx, filter, bson.M{"$set" : update})
+
+		if findErr != nil {
+			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{
+				Status: http.StatusInternalServerError,
+				Message: "error processing request",
+				Data: map[string]interface{}{"data" : findErr.Error()},
+			})
+
+			return
+		}
+
+		c.IndentedJSON(http.StatusOK, responses.UserResponse{
+			Status: http.StatusOK,
+			Message: "success",
+			Data: map[string]interface{}{"data": updateUser},
+		})
+	}
+}
