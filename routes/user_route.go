@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"example/learnginmongo/controllers"
 	"github.com/gin-gonic/gin"
+
+	"example/learnginmongo/controllers"
 )
 
 func UserRoute(router *gin.Engine) {

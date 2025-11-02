@@ -2,10 +2,12 @@ package configs
 
 import (
 	"context"
+	"log"
+	"os"
+	"time"
+
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"log"
-	"time"
 )
 
 func ConnectMongoDB() *mongo.Client {
@@ -21,6 +23,6 @@ func ConnectMongoDB() *mongo.Client {
 var Client *mongo.Client = ConnectMongoDB()
 
 func GetCollections(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("").Collection(collectionName)
+	collection := client.Database(os.Getenv("DB_NAME")).Collection(collectionName)
 	return collection
 }

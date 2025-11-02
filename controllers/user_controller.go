@@ -2,19 +2,23 @@ package controllers
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"example/learnginmongo/configs"
 	"example/learnginmongo/models"
 	"example/learnginmongo/responses"
-	"net/http"
-	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-var collection *mongo.Collection = configs.GetCollections(configs.Client, "test")
+var collection *mongo.Collection = configs.GetCollections(configs.Client, os.Getenv("COLLECTION_NAME"))
 var validate *validator.Validate = validator.New()
 
 func CreateUser() gin.HandlerFunc {
@@ -34,7 +38,7 @@ func CreateUser() gin.HandlerFunc {
 		}
 
 		newUser := models.User{
-			Id:       primitive.NewObjectID(),
+			Id:       bson.NewObjectID(),
 			Name:     user.Name,
 			Location: user.Location,
 			Title:    user.Title,
@@ -57,19 +61,34 @@ func GetUser() gin.HandlerFunc {
 		id := c.Param("id")
 		var user models.User
 
-		userId, err := primitive.ObjectIDFromHex(id)
+		objId, err := bson.ObjectIDFromHex(id)
 		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "failure", Data: map[string]interface{}{"data" : err.Error()}})
-		}
-
-		filter := bson.D{{Key: "_id", Value: userId}}
-		
-		findErr := collection.FindOne(ctx, filter).Decode(&user)
-		if err!= nil {
-			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "failure", Data: map[string]interface{}{"data" : findErr.Error()}})
+			fmt.Println("in ObjectIDFromHex error block")
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "objId for requested user is not valid", Data: map[string]interface{}{"data": err.Error()}})
 			return
 		}
 
-		c.IndentedJSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data" : user}})
+		filter := bson.M{"_id": objId}
+
+		findErr := collection.FindOne(ctx, filter).Decode(&user)
+		// if findErr != nil {
+		// 	fmt.Println(user)
+		// 	fmt.Println("in FindOne error block")
+		// 	c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "failure", Data: map[string]interface{}{"data": findErr.Error()}})
+		// 	// c.IndentedJSON(http.StatusInternalServerError, gin.H{"data" : })
+		// 	return
+		// }
+		if errors.Is(findErr, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusNotFound, gin.H{"message": "User with the given id does not exist"})
+			return
+		}
+
+		fmt.Println(user)
+		if findErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": findErr.Error()})
+			return
+		}
+
+		c.IndentedJSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
 	}
 }
