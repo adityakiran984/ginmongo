@@ -178,3 +178,44 @@ func UpdateUser() gin.HandlerFunc {
 		})
 	}
 }
+
+func DeleteUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		
+		id := c.Param("id")
+		
+		objId, err := bson.ObjectIDFromHex(id)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "invalid id for requested user",
+				Data: map[string]interface{}{"data" : err.Error()},
+			})
+
+			return
+		}
+
+		filter := bson.M{"_id" : objId}
+
+		result, err := collection.DeleteOne(ctx, filter)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{
+				Status: http.StatusInternalServerError,
+				Message: "error occured while trying to delete user",
+				Data: map[string]interface{}{"data" : err.Error()},
+			})
+
+			return
+		}
+
+		c.IndentedJSON(http.StatusOK, responses.UserResponse{
+			Status: http.StatusOK,
+			Message: "success",
+			Data: map[string]interface{}{"data" : result},
+		})
+	}
+}
