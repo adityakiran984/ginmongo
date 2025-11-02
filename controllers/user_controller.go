@@ -28,12 +28,20 @@ func CreateUser() gin.HandlerFunc {
 		defer cancel()
 
 		if err := c.BindJSON(&user); err != nil {
-			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "failure", Data: map[string]interface{}{"data": err.Error()}})
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "failure",
+				Data: map[string]interface{}{"data": err.Error()}})
+
 			return
 		}
 
 		if validationError := validate.Struct(&user); validationError != nil {
-			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "failure", Data: map[string]interface{}{"data": validationError.Error()}})
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "failure",
+				Data: map[string]interface{}{"data": validationError.Error()}})
+
 			return
 		}
 
@@ -43,13 +51,21 @@ func CreateUser() gin.HandlerFunc {
 			Location: user.Location,
 			Title:    user.Title,
 		}
+
 		result, err := collection.InsertOne(ctx, newUser)
 		if err != nil {
-			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "failure", Data: map[string]interface{}{"data": err.Error()}})
+			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{
+				Status: http.StatusInternalServerError,
+				Message: "failure",
+				Data: map[string]interface{}{"data": err.Error()}})
+
 			return
 		}
 
-		c.IndentedJSON(http.StatusOK, responses.UserResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}})
+		c.IndentedJSON(http.StatusOK, responses.UserResponse{
+			Status: http.StatusCreated,
+			Message: "success",
+			Data: map[string]interface{}{"data": result}})
 	}
 }
 
@@ -62,33 +78,43 @@ func GetUser() gin.HandlerFunc {
 		var user models.User
 
 		objId, err := bson.ObjectIDFromHex(id)
+
 		if err != nil {
 			fmt.Println("in ObjectIDFromHex error block")
-			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "objId for requested user is not valid", Data: map[string]interface{}{"data": err.Error()}})
+			c.IndentedJSON(http.StatusBadRequest, responses.UserResponse{
+				Status: http.StatusBadRequest,
+				Message: "objId for requested user is not valid",
+				Data: map[string]interface{}{"data": err.Error()}})
+
 			return
 		}
 
 		filter := bson.M{"_id": objId}
 
 		findErr := collection.FindOne(ctx, filter).Decode(&user)
-		// if findErr != nil {
-		// 	fmt.Println(user)
-		// 	fmt.Println("in FindOne error block")
-		// 	c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "failure", Data: map[string]interface{}{"data": findErr.Error()}})
-		// 	// c.IndentedJSON(http.StatusInternalServerError, gin.H{"data" : })
-		// 	return
-		// }
+
 		if errors.Is(findErr, mongo.ErrNoDocuments) {
-			c.JSON(http.StatusNotFound, gin.H{"message": "User with the given id does not exist"})
+			c.IndentedJSON(http.StatusNotFound, responses.UserResponse{
+				Status: http.StatusNotFound,
+				Message: "no record found for given id",
+				Data: map[string]interface{}{"data": findErr.Error()}})
+
 			return
 		}
 
-		fmt.Println(user)
 		if findErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": findErr.Error()})
+			c.IndentedJSON(http.StatusInternalServerError, responses.UserResponse{
+				Status: http.StatusInternalServerError,
+				Message: "failure",
+				Data: map[string]interface{}{"data": findErr.Error()}})
+
 			return
 		}
 
-		c.IndentedJSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
+
+		c.IndentedJSON(http.StatusOK, responses.UserResponse{
+			Status: http.StatusOK,
+			Message: "success",
+			Data: map[string]interface{}{"data": user}})
 	}
 }
