@@ -5,4 +5,4 @@
 - [x] Create proper folder structure
 - [x] Add MongoDB integration
 - [ ] Add test
-- [ ] Complete dockerfile to run it as an image
+- [x] Complete dockerfile to run it as an image
