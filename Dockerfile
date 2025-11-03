@@ -1,4 +1,4 @@
-FROM golang:1.25.3-alpine AS BUILD
+FROM golang:1.25.3-alpine AS build
 
 WORKDIR /app
 
@@ -12,6 +12,6 @@ FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=BUILD /app/ginmongo .
+COPY --from=build /app/ginmongo .
 
 CMD [ "./learnginmongo" ]
