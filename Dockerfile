@@ -14,4 +14,4 @@ WORKDIR /app
 
 COPY --from=build /app/ginmongo .
 
-CMD [ "./learnginmongo" ]
+CMD [ "./learnginmongo.exe" ]
